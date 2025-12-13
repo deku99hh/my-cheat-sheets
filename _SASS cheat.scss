@@ -1,0 +1,173 @@
+@import './file';
+//inclode other scss that starts with _
+// so, the file would be '_file.scss'
+
+
+
+@use 'abstracts/variables' as v;
+@use 'abstracts/functions' as m;
+//inclode other scss in an object named v,v
+body {
+  color: v.$primary-color;
+  @include m.responsive-text; // If mixin is named 'responsive-text'
+}
+
+
+
+// 1. Define variables
+$primary-color: #007bff;
+$container-width: 80%;
+
+.some-element {
+    color: $primary-color;
+    width: $container-width;
+}
+
+// ========================================================
+
+// 2. Maps / Arrays
+// similar to objects.
+$font-weights: (
+    regular: 400,
+    bold: 700
+);
+
+.bold-text {
+    // Retrieve a value from the map: map-get($map-name, $key)
+    font-weight: map-get($font-weights, bold);
+}
+.another-bold-text {
+    @extend .bold-text;
+    // evry style in bold-text wold be here
+    
+    font-weight: 100;
+    // still can chainge it thou
+}
+
+// ========================================================
+
+// 3. Nesting
+.main-section {
+    width: $container-width;
+
+    p {
+        font-size: 1.2rem;
+
+        // Use & for Pseudo-classes or to reference the parent selector
+        &:hover {
+            opacity: 0.8;
+        }
+        
+        &__paragraph { // Compiles to .main-section__paragraph
+            padding: 1rem;
+        }
+    }
+}
+
+// ========================================================
+
+// 4. Mixins & if (@mixin, @include, @if)
+// Define a reusable 'set of styles' (not just a single value).
+// Can accept arguments.
+@mixin flex-center($direction: row) {
+    // row is the defult.
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: $direction;
+}
+
+.flex-container {
+    @include flex-center(column);
+}
+
+
+// Use @if and @else inside mixins
+// to inclode more detailes.
+
+@mixin apply-theme($is-light-theme: false) {
+    // If the theme is set to light (True)
+    @if $is-light-theme {
+        // True
+        background: lighten($primary-color, 80%);
+        color: darken($primary-color, 80%); 
+    } @else {
+        // If the theme is dark (False)
+        background: $primary-color;
+        color: white;
+    }
+}
+
+.theme-button {
+  @include apply-theme(true); // Applies the light theme
+}
+
+// ========================================================
+
+// 5. Functions (@function, @return)
+// Compute and return a 'single value'.
+@function get-weight($name) {
+    @return map-get($font-weights, $name);
+}
+
+.heading {
+    font-weight: get-weight(bold);
+    // Calls the function and returns 700
+}
+
+// ========================================================
+
+// 6. Operations (Math)
+.small-element {
+    width: 100% / 4;
+    width: 100% - 75%;
+    // Result: 25%
+}
+
+// ========================================================
+
+// 7. a f*cken loop!!!!!!
+@for $i from 1 through 4 {
+  .p-#{$i} {
+    padding: 0.25rem * $i;
+  }
+}
+// to
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+
+// ========================================================
+
+// 8. WTF!!!!!!!
+// like a multy dimentianal array
+$buttons: (
+    (primary, #fff, #007bff),
+    (secondary, #fff, #6c757d),
+    (ghost, #007bff, transparent),
+);
+
+@each $name, $text, $bg in $buttons {
+    .btn-#{$name} {
+        color: $text;
+        background-color: $bg;
+    }
+}
+
+// ========================================================
+
+// 9. A7A;
+$i: 1;
+
+@while $i < 4 {
+    .text-size-#{$i} {
+        font-size: 10px * $i;
+    }
+    $i: $i + 1; // Increment step
+}
+
+// Compiled CSS Output:
+// .text-size-1 { font-size: 10px; }
+// .text-size-2 { font-size: 20px; }
+// .text-size-3 { font-size: 30px; }
